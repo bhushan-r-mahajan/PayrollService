@@ -33,4 +33,11 @@ public class PayrollServiceTest {
         employeeData = PayrollService.getInstance().readDataAccordingToDate(startDate, endDate);
         Assertions.assertEquals(2, employeeData.size());
     }
+
+    @Test
+    void givenPayrollData_WhenQAverageSalaryRetrieved_ShouldGiveResultGenderWise() throws CustomException {
+        Map<String, Double> averageSalary = PayrollService.getInstance().readAverageSalary();
+        System.out.println(PayrollService.getInstance().readAverageSalary());
+        Assertions.assertTrue(averageSalary.get("m").equals(3500000.0) && averageSalary.get("f").equals(3000000.0));
+    }
 }
