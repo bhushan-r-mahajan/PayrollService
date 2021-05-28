@@ -1,10 +1,23 @@
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import  java.sql.Date;
+import java.util.Map;
 
 public class PayrollService {
     List<EmployeeData> employeeDataList = new ArrayList<>();
+
+    private void preparedStatementForEmployeeData() throws CustomException {
+        try {
+            Connection connection = this.getConnection();
+            String sql = "select * from employee_payroll where name = ?";
+            employeePayrollDataStatement = connection.prepareStatement(sql);
+        } catch (SQLException e) {
+            throw new CustomException("Prepared Statement Failed!");
+        }
+    }
 
     private PreparedStatement employeePayrollDataStatement;
     private static PayrollService instance;
@@ -45,8 +58,7 @@ public class PayrollService {
         return employeeData;
     }
 
-    public List<EmployeeData> readAllDataFromTable() throws CustomException {
-        String sql = "select * from employee_payroll;";
+    private List<EmployeeData> getDataFromDBWhenSQLGiven(String sql) throws CustomException {
         try (Connection connection = this.getConnection()) {
             Statement statement = connection.createStatement();
             ResultSet result = statement.executeQuery(sql);
@@ -71,14 +83,15 @@ public class PayrollService {
         return employeeDataList;
     }
 
-    private void preparedStatementForEmployeeData() throws CustomException {
-        try {
-            Connection connection = this.getConnection();
-            String sql = "select * from employee_payroll where name = ?";
-            employeePayrollDataStatement = connection.prepareStatement(sql);
-        } catch (SQLException e) {
-            throw new CustomException("Prepared Statement Failed!");
-        }
+    public List<EmployeeData> readAllDataFromTable() throws CustomException {
+        String sql = "select * from employee_payroll;";
+        return this.getDataFromDBWhenSQLGiven(sql);
+    }
+
+    public List<EmployeeData> readDataAccordingToDate(LocalDate startDate, LocalDate endDate) throws CustomException {
+        String sql = String.format("select * from employee_payroll where start_date between '%s' and '%s'",
+                                    Date.valueOf(startDate), Date.valueOf(endDate));
+        return this.getDataFromDBWhenSQLGiven(sql);
     }
 
     public int updateDataInDB(String name, double salary) throws CustomException {
@@ -89,5 +102,22 @@ public class PayrollService {
         } catch (SQLException e) {
             throw new CustomException("Update Failed!!!");
         }
+    }
+
+    public Map<String, Double> readAverageSalary() throws CustomException {
+        String sql = "select gender, avg(salary) as avg_salary from employee_payroll group by gender;";
+        Map<String, Double> averageByGender = new HashMap<>();
+        try (Connection connection = this.getConnection()) {
+            Statement statement = connection.createStatement();
+            ResultSet result = statement.executeQuery(sql);
+            while (result.next()) {
+                String gender = result.getString("gender");
+                double salary = result.getDouble("avg_salary");
+                averageByGender.put(gender, salary);
+            }
+        } catch (SQLException e) {
+            throw new CustomException("Operation Failed!!");
+        }
+        return averageByGender;
     }
 }
