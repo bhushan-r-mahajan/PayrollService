@@ -69,6 +69,22 @@ public class PayrollService {
         return employeeDataList;
     }
 
+    private Map<String, Double> getOperationResult(String sql) throws CustomException {
+        Map<String, Double> averageByGender = new HashMap<>();
+        try (Connection connection = this.getConnection()) {
+            Statement statement = connection.createStatement();
+            ResultSet result = statement.executeQuery(sql);
+            while (result.next()) {
+                String gender = result.getString("gender");
+                double salary = result.getDouble("operation");
+                averageByGender.put(gender, salary);
+            }
+        } catch (SQLException e) {
+            throw new CustomException("Operation Failed!!");
+        }
+        return averageByGender;
+    }
+
     public List<EmployeeData> getEmployeePayrollData(String fname) throws CustomException {
         if(this.employeePayrollDataStatement == null){
             this.preparedStatementForEmployeeData();
@@ -94,6 +110,31 @@ public class PayrollService {
         return this.getDataFromDBWhenSQLGiven(sql);
     }
 
+    public Map<String, Double> readAverageSalary() throws CustomException {
+        String sql = "select gender, avg(salary) as operation from employee_payroll group by gender;";
+        return this.getOperationResult(sql);
+    }
+
+    public Map<String, Double> readSumOfSalary() throws CustomException {
+        String sql = "select gender, sum(salary) as operation from employee_payroll group by gender;";
+        return this.getOperationResult(sql);
+    }
+
+    public Map<String, Double> readMinSalary() throws CustomException {
+        String sql = "select gender, min(salary) as operation from employee_payroll group by gender;";
+        return this.getOperationResult(sql);
+    }
+
+    public Map<String, Double> readMaxSalary() throws CustomException {
+        String sql = "select gender, max(salary) as operation from employee_payroll group by gender;";
+        return this.getOperationResult(sql);
+    }
+
+    public Map<String, Double> readCountOfSalary() throws CustomException {
+        String sql = "select gender, count(salary) as operation from employee_payroll group by gender;";
+        return this.getOperationResult(sql);
+    }
+
     public int updateDataInDB(String name, double salary) throws CustomException {
         String sql = String.format("update employee_payroll set salary = %.2f where name = '%s';", salary, name);
         try (Connection connection = this.getConnection()) {
@@ -102,22 +143,5 @@ public class PayrollService {
         } catch (SQLException e) {
             throw new CustomException("Update Failed!!!");
         }
-    }
-
-    public Map<String, Double> readAverageSalary() throws CustomException {
-        String sql = "select gender, avg(salary) as avg_salary from employee_payroll group by gender;";
-        Map<String, Double> averageByGender = new HashMap<>();
-        try (Connection connection = this.getConnection()) {
-            Statement statement = connection.createStatement();
-            ResultSet result = statement.executeQuery(sql);
-            while (result.next()) {
-                String gender = result.getString("gender");
-                double salary = result.getDouble("avg_salary");
-                averageByGender.put(gender, salary);
-            }
-        } catch (SQLException e) {
-            throw new CustomException("Operation Failed!!");
-        }
-        return averageByGender;
     }
 }

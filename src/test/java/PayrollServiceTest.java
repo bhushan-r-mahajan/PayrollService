@@ -35,9 +35,37 @@ public class PayrollServiceTest {
     }
 
     @Test
-    void givenPayrollData_WhenQAverageSalaryRetrieved_ShouldGiveResultGenderWise() throws CustomException {
-        Map<String, Double> averageSalary = PayrollService.getInstance().readAverageSalary();
-        System.out.println(PayrollService.getInstance().readAverageSalary());
-        Assertions.assertTrue(averageSalary.get("m").equals(3500000.0) && averageSalary.get("f").equals(3000000.0));
+    void givenPayrollData_WhenAverageSalaryRetrieved_ShouldGiveResultGenderWise() throws CustomException {
+        Map<String, Double> salaryOperations = PayrollService.getInstance().readAverageSalary();
+        System.out.println("<-- Average Salary of Male And Female -->\n" + PayrollService.getInstance().readAverageSalary());
+        Assertions.assertTrue(salaryOperations.get("m").equals(3500000.0) && salaryOperations.get("f").equals(3000000.0));
+    }
+
+    @Test
+    void givenPayrollData_WhenSumOfSalaryRetrieved_ShouldGiveResultGenderWise() throws CustomException {
+        Map<String, Double> salaryOperations = PayrollService.getInstance().readSumOfSalary();
+        System.out.println("<-- Sum Of Salary of Male And Female -->\n" + PayrollService.getInstance().readSumOfSalary());
+        Assertions.assertTrue(salaryOperations.get("m").equals(7000000.0) && salaryOperations.get("f").equals(3000000.0));
+    }
+
+    @Test
+    void givenPayrollData_WhenMinSalaryRetrieved_ShouldGiveResultGenderWise() throws CustomException {
+        Map<String, Double> salaryOperations = PayrollService.getInstance().readMinSalary();
+        System.out.println("<-- Minimum Salary of Male And Female -->\n" + PayrollService.getInstance().readMinSalary());
+        Assertions.assertTrue(salaryOperations.get("m").equals(2000000.0) && salaryOperations.get("f").equals(3000000.0));
+    }
+
+    @Test
+    void givenPayrollData_WhenMaxSalaryRetrieved_ShouldGiveResultGenderWise() throws CustomException {
+        Map<String, Double> salaryOperations = PayrollService.getInstance().readMaxSalary();
+        System.out.println("<-- Maximum Salary of Male And Female -->\n" + PayrollService.getInstance().readMaxSalary());
+        Assertions.assertTrue(salaryOperations.get("m").equals(5000000.0) && salaryOperations.get("f").equals(3000000.0));
+    }
+
+    @Test
+    void givenPayrollData_WhenCountOfSalaryRetrieved_ShouldGiveResultGenderWise() throws CustomException {
+        Map<String, Double> salaryOperations = PayrollService.getInstance().readCountOfSalary();
+        System.out.println("<-- Count Of Salary of Male And Female -->\n" + PayrollService.getInstance().readCountOfSalary());
+        Assertions.assertTrue(salaryOperations.get("m").equals(2.0) && salaryOperations.get("f").equals(1.0));
     }
 }
