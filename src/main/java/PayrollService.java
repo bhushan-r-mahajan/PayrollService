@@ -7,9 +7,13 @@ import  java.sql.Date;
 import java.util.Map;
 
 public class PayrollService {
+
+    private int connectionCounter = 0;
+
     List<EmployeeData> employeeDataList = new ArrayList<>();
 
     private PreparedStatement employeePayrollDataStatement;
+
     private static PayrollService instance;
 
     public static PayrollService getInstance() {
@@ -29,13 +33,16 @@ public class PayrollService {
         }
     }
 
-    private Connection getConnection() throws CustomException {
+    private synchronized Connection getConnection() throws CustomException {
+        connectionCounter++;
         String jdbcUrl = "jdbc:mysql://localhost:3306/payroll_service?useSSL=false";
         String userName = "root";
         String password = "Bhushan@0611";
         Connection connection;
+        System.out.println("Thread Being Processed : " + Thread.currentThread().getName() + "\nconnecting to database with ID = " + connectionCounter);
         try {
             connection = DriverManager.getConnection(jdbcUrl, userName, password);
+            System.out.println("Thread Being Processed : " + Thread.currentThread().getName() + "\nID = " + connectionCounter + "  connection successful!! " + connection);
         } catch (SQLException e) {
             throw new CustomException("Connection to Database Failed!!");
         }
@@ -146,23 +153,6 @@ public class PayrollService {
         }
     }
 
-    public void addMultipleEmployeeToDB(List<EmployeeData> employeeDataList) {
-        employeeDataList.forEach(employeeData -> {
-            System.out.println("Employee Being Added is: " + employeeData.name);
-            try {
-                this.addEmployeeToDB(employeeData.name, employeeData.gender, employeeData.salary, employeeData.date);
-            } catch (CustomException e) {
-                try {
-                    throw new CustomException("Query Failed!!");
-                } catch (CustomException customException) {
-                    customException.printStackTrace();
-                }
-            }
-            System.out.println("Employee Added: " + employeeData.name);
-        });
-        System.out.println(this.employeeDataList);
-    }
-
     public EmployeeData addEmployeeToDB(String name, String gender, double salary, LocalDate date) throws CustomException {
         int id = -1;
         EmployeeData employeeData;
@@ -182,6 +172,17 @@ public class PayrollService {
         return employeeData;
     }
 
+    public void addMultipleEmployeeToDB(List<EmployeeData> employeeDataList) {
+        employeeDataList.forEach(employeeData -> {
+            System.out.println("Employee Being Added is: " + employeeData.name);
+            try {
+                this.addEmployeeToDB(employeeData.name, employeeData.gender, employeeData.salary, employeeData.date);
+            } catch (CustomException e) { }
+            System.out.println("Employee Added: " + employeeData.name);
+        });
+        System.out.println(this.employeeDataList);
+    }
+
     public void addMultipleEmployeeToDBWithThreads(List<EmployeeData> employeeDataList) {
         Map<Integer, Boolean> employeeMultiThread = new HashMap<>();
         employeeDataList.forEach(employeeData -> {
@@ -190,13 +191,7 @@ public class PayrollService {
                 System.out.println("Employee Being Added is: " + Thread.currentThread().getName());
                 try {
                     this.addEmployeeToDB(employeeData.name, employeeData.gender, employeeData.salary, employeeData.date);
-                } catch (CustomException e) {
-                    try {
-                        throw new CustomException("Failed!!");
-                    } catch (CustomException customException) {
-                        customException.printStackTrace();
-                    }
-                }
+                } catch (CustomException e) { }
                 employeeMultiThread.put(employeeData.hashCode(), true);
                 System.out.println("Employee Added: " + Thread.currentThread().getName());
             };
