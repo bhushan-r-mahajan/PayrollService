@@ -181,4 +181,35 @@ public class PayrollService {
         }
         return employeeData;
     }
+
+    public void addMultipleEmployeeToDBWithThreads(List<EmployeeData> employeeDataList) {
+        Map<Integer, Boolean> employeeMultiThread = new HashMap<>();
+        employeeDataList.forEach(employeeData -> {
+            Runnable task = () -> {
+                employeeMultiThread.put(employeeData.hashCode(), false);
+                System.out.println("Employee Being Added is: " + Thread.currentThread().getName());
+                try {
+                    this.addEmployeeToDB(employeeData.name, employeeData.gender, employeeData.salary, employeeData.date);
+                } catch (CustomException e) {
+                    try {
+                        throw new CustomException("Failed!!");
+                    } catch (CustomException customException) {
+                        customException.printStackTrace();
+                    }
+                }
+                employeeMultiThread.put(employeeData.hashCode(), true);
+                System.out.println("Employee Added: " + Thread.currentThread().getName());
+            };
+            Thread thread = new Thread(task, employeeData.name);
+            thread.start();
+        });
+        while (employeeMultiThread.containsValue(false)) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println(this.employeeDataList);
+    }
 }

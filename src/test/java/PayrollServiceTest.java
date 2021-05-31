@@ -93,7 +93,11 @@ public class PayrollServiceTest {
         PayrollService.getInstance().addMultipleEmployeeToDB(Arrays.asList(employeeArray));
         Instant end = Instant.now();
         System.out.println("Time Taken to Execute Without MultiThreading: " + Duration.between(start, end));
+        Instant startThread = Instant.now();
+        PayrollService.getInstance().addMultipleEmployeeToDBWithThreads(Arrays.asList(employeeArray));
+        Instant endThread = Instant.now();
+        System.out.println("Time Taken to Execute Without MultiThreading: " + Duration.between(startThread, endThread));
         employeeData = PayrollService.getInstance().readAllDataFromTable();
-        Assertions.assertEquals(7, employeeData.size());
+        Assertions.assertEquals(13, employeeData.size());
     }
 }
