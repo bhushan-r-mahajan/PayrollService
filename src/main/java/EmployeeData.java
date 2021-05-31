@@ -3,12 +3,14 @@ import java.time.LocalDate;
 public class EmployeeData {
     public int id;
     public String name;
+    public String gender;
     public double salary;
     public LocalDate date;
 
-    public EmployeeData(Integer id, String name, Double salary, LocalDate date) {
+    public EmployeeData(Integer id, String name, String gender, Double salary, LocalDate date) {
         this.id = id;
         this.name = name;
+        this.gender = gender;
         this.salary = salary;
         this.date = date;
     }

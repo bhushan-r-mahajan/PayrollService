@@ -9,16 +9,6 @@ import java.util.Map;
 public class PayrollService {
     List<EmployeeData> employeeDataList = new ArrayList<>();
 
-    private void preparedStatementForEmployeeData() throws CustomException {
-        try {
-            Connection connection = this.getConnection();
-            String sql = "select * from employee_payroll where name = ?";
-            employeePayrollDataStatement = connection.prepareStatement(sql);
-        } catch (SQLException e) {
-            throw new CustomException("Prepared Statement Failed!");
-        }
-    }
-
     private PreparedStatement employeePayrollDataStatement;
     private static PayrollService instance;
 
@@ -27,6 +17,16 @@ public class PayrollService {
             instance = new PayrollService();
         }
         return instance;
+    }
+
+    private void preparedStatementForEmployeeData() throws CustomException {
+        try {
+            Connection connection = this.getConnection();
+            String sql = "select * from employee_payroll where name = ?";
+            employeePayrollDataStatement = connection.prepareStatement(sql);
+        } catch (SQLException e) {
+            throw new CustomException("Prepared Statement Failed!");
+        }
     }
 
     private Connection getConnection() throws CustomException {
@@ -48,9 +48,10 @@ public class PayrollService {
             while (result.next()) {
                 int id = result.getInt("id");
                 String name = result.getString("name");
+                String gender = result.getString("gender");
                 double salary = result.getDouble("salary");
                 LocalDate start_date = result.getDate("start_date").toLocalDate();
-                employeeData.add(new EmployeeData(id, name, salary, start_date));
+                employeeData.add(new EmployeeData(id, name, gender, salary, start_date));
             }
         } catch (SQLException e) {
             throw new CustomException("Failed!!");
@@ -143,5 +144,41 @@ public class PayrollService {
         } catch (SQLException e) {
             throw new CustomException("Update Failed!!!");
         }
+    }
+
+    public void addMultipleEmployeeToDB(List<EmployeeData> employeeDataList) {
+        employeeDataList.forEach(employeeData -> {
+            System.out.println("Employee Being Added is: " + employeeData.name);
+            try {
+                this.addEmployeeToDB(employeeData.name, employeeData.gender, employeeData.salary, employeeData.date);
+            } catch (CustomException e) {
+                try {
+                    throw new CustomException("Query Failed!!");
+                } catch (CustomException customException) {
+                    customException.printStackTrace();
+                }
+            }
+            System.out.println("Employee Added: " + employeeData.name);
+        });
+        System.out.println(this.employeeDataList);
+    }
+
+    public EmployeeData addEmployeeToDB(String name, String gender, double salary, LocalDate date) throws CustomException {
+        int id = -1;
+        EmployeeData employeeData;
+        String sql = String.format("insert into employee_payroll (name, gender, salary, start_date) values " +
+                "('%s', '%s', '%s', '%s')", name, gender, salary, date);
+        try (Connection connection = this.getConnection()) {
+            Statement statement = connection.createStatement();
+            int rowAffected = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
+            if (rowAffected == 1) {
+                ResultSet resultSet = statement.getGeneratedKeys();
+                if(resultSet.next()) id = resultSet.getInt(1);
+            }
+            employeeData = new EmployeeData(id, name, gender, salary, date);
+        } catch (SQLException e) {
+            throw new CustomException("Query Failed!!");
+        }
+        return employeeData;
     }
 }
