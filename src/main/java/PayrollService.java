@@ -207,4 +207,27 @@ public class PayrollService {
         }
         System.out.println(this.employeeDataList);
     }
+
+    public void updateMultipleEmployeeToDB(List<EmployeeData> employeeDataList) {
+        Map<Integer, Boolean> employeeMultiThread = new HashMap<>();
+        employeeDataList.forEach(employeeData -> {
+            Runnable task = () -> {
+                employeeMultiThread.put(employeeData.hashCode(), false);
+                try {
+                    this.updateDataInDB(employeeData.name, employeeData.salary);
+                } catch (CustomException e) { }
+                employeeMultiThread.put(employeeData.hashCode(), true);
+            };
+            Thread thread = new Thread(task, employeeData.name);
+            thread.start();
+        });
+        while (employeeMultiThread.containsValue(false)) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println(this.employeeDataList);
+    }
 }

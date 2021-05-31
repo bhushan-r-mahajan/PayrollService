@@ -100,4 +100,20 @@ public class PayrollServiceTest {
         employeeData = PayrollService.getInstance().readAllDataFromTable();
         Assertions.assertEquals(13, employeeData.size());
     }
+
+    @Test
+    void givenMultipleEmployees_WhenUpdatedToDB_ShouldMatchCount() throws CustomException {
+        EmployeeData[]  employeeArray = {
+                new EmployeeData("yash", 7000000.0),
+                new EmployeeData("jay", 8000000.0)
+        };
+        Instant start = Instant.now();
+        PayrollService.getInstance().updateMultipleEmployeeToDB(Arrays.asList(employeeArray));
+        Instant end = Instant.now();
+        System.out.println("Time Taken to Execute Without MultiThreading: " + Duration.between(start, end));
+        System.out.println(PayrollService.getInstance().getEmployeePayrollData("yash"));
+        System.out.println(PayrollService.getInstance().getEmployeePayrollData("jay"));
+        employeeData = PayrollService.getInstance().readAllDataFromTable();
+        Assertions.assertEquals(13, employeeData.size());
+    }
 }

@@ -16,9 +16,14 @@ public class EmployeeData {
         this.date = date;
     }
 
+    public EmployeeData(String name, double salary) {
+        this.name = name;
+        this.salary = salary;
+    }
+
     @Override
     public String toString() {
-        return "EmployeeData:->" + "Id = " + id + " Name = " + name + "Gender" + gender +" Salary = " + salary + " Start Date = " + date;
+        return "EmployeeData:->" + "Id = " + id + " Name = " + name + " Gender = " + gender +" Salary = " + salary + " Start Date = " + date;
     }
 
     @Override
