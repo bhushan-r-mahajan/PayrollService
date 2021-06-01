@@ -3,13 +3,17 @@ import java.util.List;
 
 public class EmployeePayrollRestAPI {
 
-    List<Data> DataList;
+    List<Data> dataList;
 
-    public EmployeePayrollRestAPI(List<Data> DataList) {
-        this.DataList = new ArrayList<>(DataList);
+    public EmployeePayrollRestAPI(List<Data> dataList) {
+        this.dataList = new ArrayList<>(dataList);
     }
 
     public long countEntries() {
-        return this.DataList.size();
+        return this.dataList.size();
+    }
+
+    public void addEmployeeToList(Data data) {
+        this.dataList.add(data);
     }
 }
