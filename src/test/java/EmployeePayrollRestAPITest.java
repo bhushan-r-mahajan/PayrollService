@@ -98,4 +98,19 @@ public class EmployeePayrollRestAPITest {
         int statusCode = response.statusCode();
         Assertions.assertEquals(200, statusCode);
     }
+
+    @Test
+    void givenDeleteQuery_WhenDeleted_ShouldReturn200ResponseCode() {
+        EmployeePayrollRestAPI employeePayrollRestAPI;
+        Data[] dataArray = getEmployeeDetails();
+        employeePayrollRestAPI = new EmployeePayrollRestAPI(Arrays.asList(dataArray));
+
+        Data data = employeePayrollRestAPI.getEmployee("abhijit");
+        RequestSpecification requestSpecification = RestAssured.given();
+        requestSpecification.header("Content-Type", "application/json");
+        Response response = requestSpecification.delete(RestAssured.baseURI + "/employees/" + data.id);
+        System.out.println("After Updating we have: \n" + getEmployeeDetails());
+        int statusCode = response.statusCode();
+        Assertions.assertEquals(200, statusCode);
+    }
 }
