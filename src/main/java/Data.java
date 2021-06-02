@@ -14,4 +14,9 @@ public class Data {
         this.salary = salary;
         this.date = date;
     }
+
+    @Override
+    public String toString() {
+        return "EmployeeData:->" + "Id = " + id + " Name = " + name + " Gender = " + gender +" Salary = " + salary + " Start Date = " + date;
+    }
 }

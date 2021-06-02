@@ -156,9 +156,16 @@ public class PayrollService {
     public EmployeeData addEmployeeToDB(String name, String gender, double salary, LocalDate date) throws CustomException {
         int id = -1;
         EmployeeData employeeData;
+        Connection connection = null;
         String sql = String.format("insert into employee_payroll (name, gender, salary, start_date) values " +
                 "('%s', '%s', '%s', '%s')", name, gender, salary, date);
-        try (Connection connection = this.getConnection()) {
+        try {
+            connection = this.getConnection();
+            connection.setAutoCommit(false);
+        } catch (SQLException e){
+            throw new CustomException("Failed!!");
+        }
+        try {
             Statement statement = connection.createStatement();
             int rowAffected = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
             if (rowAffected == 1) {
@@ -167,7 +174,21 @@ public class PayrollService {
             }
             employeeData = new EmployeeData(id, name, gender, salary, date);
         } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new CustomException("Failed!!");
+            }
             throw new CustomException("Query Failed!!");
+        } finally {
+            if(connection != null) {
+                try {
+                    connection.commit();
+                    connection.close();
+                } catch (SQLException e) {
+                    throw new CustomException("Failed!!");
+                }
+            }
         }
         return employeeData;
     }

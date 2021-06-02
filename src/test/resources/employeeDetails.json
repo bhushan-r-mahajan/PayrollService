@@ -4,8 +4,29 @@
       "id": 1,
       "name": "bhushan",
       "gender": "m",
-      "salary": 3000000,
-      "date": "Nov 6, 2020, 3:40:03 PM"
+      "salary": 5000000,
+      "date": "Jun 2, 2021, 9:52:45 AM"
+    },
+    {
+      "id": 2,
+      "name": "vijay",
+      "gender": "m",
+      "salary": 4000000,
+      "date": "Jun 2, 2021, 9:52:45 AM"
+    },
+    {
+      "id": 3,
+      "name": "vijay",
+      "gender": "m",
+      "salary": 4000000,
+      "date": "Jun 2, 2021, 9:53:18 AM"
+    },
+    {
+      "id": 4,
+      "name": "shashank",
+      "gender": "m",
+      "salary": 6000000,
+      "date": "Jun 2, 2021, 9:53:18 AM"
     }
   ]
 }

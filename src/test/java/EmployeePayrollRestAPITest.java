@@ -15,7 +15,6 @@ public class EmployeePayrollRestAPITest {
     @BeforeEach
     void setUp() {
         RestAssured.baseURI = "http://localhost:3000";
-        RestAssured.port = 3000;
     }
 
     private Data[] getEmployeeDetails() {
@@ -57,5 +56,46 @@ public class EmployeePayrollRestAPITest {
         getEmployeeDetails();
         long entries = employeePayrollRestAPI.countEntries();
         Assertions.assertEquals(2, entries);
+    }
+
+    @Test
+    void givenMultipleEmployees_WhenAdded_ShouldMatchCount() {
+        EmployeePayrollRestAPI employeePayrollRestAPI;
+        Data[] dataArray = getEmployeeDetails();
+        employeePayrollRestAPI = new EmployeePayrollRestAPI(Arrays.asList(dataArray));
+
+        Data[] arrayOfData = {
+                new Data(0, "vijay", "m", 4000000.0, Date.from(Instant.now())),
+                new Data(0, "shashank", "m", 6000000.0, Date.from(Instant.now())),
+                new Data(0, "abhijit", "m", 8000000.0, Date.from(Instant.now())),
+        };
+        for (Data data : arrayOfData) {
+            Response response = addEmployeeToJSONServer(data);
+            data = new Gson().fromJson(response.asString(), Data.class);
+            employeePayrollRestAPI.addEmployeeToList(data);
+        }
+
+        System.out.println("<<<<<<<<<- After Adding Into JSON Server ->>>>>>>>>");
+        getEmployeeDetails();
+        long entries = employeePayrollRestAPI.countEntries();
+        Assertions.assertEquals(5, entries);
+    }
+
+    @Test
+    void givenUpdateQuery_WhenUpdated_ShouldReturn200ResponseCode() {
+        EmployeePayrollRestAPI employeePayrollRestAPI;
+        Data[] dataArray = getEmployeeDetails();
+        employeePayrollRestAPI = new EmployeePayrollRestAPI(Arrays.asList(dataArray));
+
+        employeePayrollRestAPI.updateEmployeeSalary("bhushan", 5000000);
+        Data data = employeePayrollRestAPI.getEmployee("bhushan");
+        RequestSpecification requestSpecification = RestAssured.given();
+        requestSpecification.header("Content-Type", "application/json");
+        String employeeJSON = new Gson().toJson(data);
+        requestSpecification.body(employeeJSON);
+        Response response = requestSpecification.put(RestAssured.baseURI + "/employees/" + data.id);
+        System.out.println("After Updating we have: \n" + response.asString());
+        int statusCode = response.statusCode();
+        Assertions.assertEquals(200, statusCode);
     }
 }
